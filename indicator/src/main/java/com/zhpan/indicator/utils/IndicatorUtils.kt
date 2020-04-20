@@ -1,6 +1,7 @@
 package com.zhpan.indicator.utils
 
 import android.content.res.Resources
+import android.util.Log
 
 import com.zhpan.indicator.option.IndicatorOptions
 
@@ -11,6 +12,10 @@ import com.zhpan.indicator.option.IndicatorOptions
 </pre> *
  */
 object IndicatorUtils {
+
+    @JvmStatic
+    var debugMode = false
+
 
     @JvmStatic
     fun dp2px(dpValue: Float): Int {
@@ -24,5 +29,12 @@ object IndicatorUtils {
 
     fun getCoordinateY(maxDiameter: Float): Float {
         return maxDiameter / 2
+    }
+
+    @JvmStatic
+    fun log(msg: String?) {
+        if (debugMode) {
+            Log.e("BannerView", msg)
+        }
     }
 }

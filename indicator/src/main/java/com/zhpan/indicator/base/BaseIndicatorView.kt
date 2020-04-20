@@ -12,6 +12,7 @@ import com.zhpan.indicator.annotation.AIndicatorSlideMode
 import com.zhpan.indicator.annotation.AIndicatorStyle
 import com.zhpan.indicator.enums.IndicatorSlideMode
 import com.zhpan.indicator.option.IndicatorOptions
+import java.lang.IllegalStateException
 
 /**
  * <pre>
@@ -131,16 +132,24 @@ open class BaseIndicatorView @JvmOverloads constructor(context: Context, attrs: 
     }
 
     private fun setupViewPager() {
-        if (mViewPager != null) {
-            mViewPager!!.removeOnPageChangeListener(this)
-            mViewPager!!.addOnPageChangeListener(this)
-            if (mViewPager!!.adapter != null)
-                pageSize = mViewPager!!.adapter!!.count
-        } else if (mViewPager2 != null) {
-            mViewPager2!!.unregisterOnPageChangeCallback(mOnPageChangeCallback)
-            mViewPager2!!.registerOnPageChangeCallback(mOnPageChangeCallback)
-            if (mViewPager2!!.adapter != null)
-                pageSize = mViewPager2!!.adapter!!.itemCount
+        mViewPager?.let {
+            with(it) {
+                removeOnPageChangeListener(this@BaseIndicatorView)
+                removeOnPageChangeListener(this@BaseIndicatorView)
+                adapter?.let {
+                    pageSize = mViewPager?.adapter!!.count
+                }
+            }
+        } ?: let {
+            mViewPager2?.let {
+                it.apply {
+                    unregisterOnPageChangeCallback(mOnPageChangeCallback)
+                    registerOnPageChangeCallback(mOnPageChangeCallback)
+                    adapter?.let {
+                        pageSize = adapter!!.itemCount
+                    }
+                }
+            }
         }
     }
 
@@ -180,11 +189,17 @@ open class BaseIndicatorView @JvmOverloads constructor(context: Context, attrs: 
     }
 
     fun setupWithViewPager(viewPager: ViewPager) {
+        mViewPager2?.let {
+            throw IllegalStateException("You have set up with ViewPager2")
+        }
         mViewPager = viewPager
         notifyDataChanged()
     }
 
     fun setupWithViewPager(viewPager2: ViewPager2) {
+        mViewPager?.let {
+            throw IllegalStateException("You have set up with ViewPager")
+        }
         mViewPager2 = viewPager2
         notifyDataChanged()
     }
